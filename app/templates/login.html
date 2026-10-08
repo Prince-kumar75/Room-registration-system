@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Welcome Yard{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <h2>Welcome Back</h2>
+            <p>Log in to access room booking & check-in features</p>
+        </div>
+
+        <form action="/login" method="POST" class="auth-form">
+            <div class="form-group">
+                <label for="username"><i class="fa-solid fa-user"></i> Username</label>
+                <input type="text" id="username" name="username" placeholder="Enter your username" required>
+            </div>
+            <div class="form-group">
+                <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-right-to-bracket"></i> Login
+            </button>
+        </form>
+
+        <div class="demo-box">
+            <p><strong><i class="fa-solid fa-key"></i> Quick Demo Credentials:</strong></p>
+            <p>Username: <code>demouser</code> | Password: <code>password123</code></p>
+        </div>
+
+        <div class="auth-footer">
+            <p>Don't have an account yet? <a href="/register">Register here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Available Rooms - Welcome Yard{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <h1>Find & Register Your Perfect Room</h1>
+    <p>Discover luxurious, comfortable rooms tailored for your ideal stay.</p>
+</div>
+
+<div class="filter-card">
+    <form action="/rooms" method="GET" class="filter-form">
+        <div class="filter-group">
+            <label><i class="fa-solid fa-list-check"></i> Room Type</label>
+            <select name="room_type">
+                <option value="">All Room Types</option>
+                <option value="Single Economy" {% if selected_type == 'Single Economy' %}selected{% endif %}>Single Economy</option>
+                <option value="Standard Double" {% if selected_type == 'Standard Double' %}selected{% endif %}>Standard Double</option>
+                <option value="Deluxe Suite" {% if selected_type == 'Deluxe Suite' %}selected{% endif %}>Deluxe Suite</option>
+                <option value="Family Suite" {% if selected_type == 'Family Suite' %}selected{% endif %}>Family Suite</option>
+                <option value="Executive Presidential Suite" {% if selected_type == 'Executive Presidential Suite' %}selected{% endif %}>Executive Suite</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label><i class="fa-solid fa-users"></i> Guests</label>
+            <select name="min_capacity">
+                <option value="">Any Capacity</option>
+                <option value="1" {% if selected_capacity == 1 %}selected{% endif %}>1 Guest</option>
+                <option value="2" {% if selected_capacity == 2 %}selected{% endif %}>2 Guests</option>
+                <option value="3" {% if selected_capacity == 3 %}selected{% endif %}>3+ Guests</option>
+            </select>
+        </div>
+
+        <div class="filter-group">
+            <label><i class="fa-solid fa-indian-rupee-sign"></i> Max Price / Night</label>
+            <input type="number" name="max_price" placeholder="e.g. 5000" value="{{ selected_max_price or '' }}">
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Filter Rooms</button>
+            <a href="/rooms" class="btn btn-outline"><i class="fa-solid fa-rotate"></i> Reset</a>
+        </div>
+    </form>
+</div>
+
+<div class="section-title">
+    <h2>Available Rooms ({{ rooms|length }})</h2>
+</div>
+
+{% if not rooms %}
+<div class="empty-state">
+    <i class="fa-solid fa-door-closed empty-icon"></i>
+    <h3>No rooms matching your criteria</h3>
+    <p>Try broadening your filter settings or resetting filters.</p>
+</div>
+{% else %}
+<div class="rooms-grid">
+    {% for room in rooms %}
+    <div class="room-card">
+        <div class="room-image-wrapper">
+            <img src="{{ room.image_url or 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304' }}" alt="{{ room.room_type }}">
+            <span class="room-type-badge">{{ room.room_type }}</span>
+            <span class="room-number-tag">Room #{{ room.room_number }}</span>
+        </div>
+        <div class="room-card-body">
+            <div class="room-card-header">
+                <h3>{{ room.room_type }}</h3>
+                <div class="room-price">
+                    <span class="price-amount">₹{{ "%.2f"|format(room.price_per_night) }}</span>
+                    <span class="price-unit">/ night</span>
+                </div>
+            </div>
+            
+            <p class="room-description">{{ room.description }}</p>
+
+            <div class="room-meta">
+                <span><i class="fa-solid fa-user-group"></i> Max {{ room.capacity }} Guests</span>
+                <span><i class="fa-solid fa-circle-check text-success"></i> Available</span>
+            </div>
+
+            {% if room.amenities %}
+            <div class="amenities-tags">
+                {% for amenity in room.amenities.split(',') %}
+                    <span class="tag"><i class="fa-solid fa-check"></i> {{ amenity.strip() }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="room-card-footer">
+                <a href="/rooms/{{ room.id }}" class="btn btn-accent btn-block">
+                    <i class="fa-solid fa-calendar-plus"></i> Select & Book Room
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

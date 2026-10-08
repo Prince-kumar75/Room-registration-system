@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}My Booking History - Welcome Yard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2><i class="fa-solid fa-clock-rotate-left"></i> Booking History & Stay Management</h2>
+    <p>View your past, active, and upcoming room registrations. Manage Check-in and Check-out.</p>
+</div>
+
+{% if not bookings %}
+<div class="empty-state">
+    <i class="fa-solid fa-calendar-xmark empty-icon"></i>
+    <h3>No Bookings Found</h3>
+    <p>You haven't booked any rooms yet.</p>
+    <a href="/rooms" class="btn btn-primary" style="margin-top: 15px;">
+        <i class="fa-solid fa-bed"></i> Browse Available Rooms
+    </a>
+</div>
+{% else %}
+<div class="booking-history-list">
+    {% for booking in bookings %}
+    <div class="history-card status-border-{{ booking.status.lower() }}">
+        <div class="history-card-header">
+            <div>
+                <span class="booking-id">Booking #{{ booking.id }}</span>
+                <span class="created-date">Booked on {{ booking.created_at.strftime('%b %d, %Y') }}</span>
+            </div>
+            <div>
+                {% if booking.status == 'BOOKED' %}
+                    <span class="badge badge-booked"><i class="fa-solid fa-calendar-days"></i> Booked</span>
+                {% elif booking.status == 'CHECKED_IN' %}
+                    <span class="badge badge-checked-in"><i class="fa-solid fa-key"></i> Checked In</span>
+                {% elif booking.status == 'CHECKED_OUT' %}
+                    <span class="badge badge-checked-out"><i class="fa-solid fa-flag-checkered"></i> Checked Out</span>
+                {% elif booking.status == 'CANCELLED' %}
+                    <span class="badge badge-cancelled"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="history-card-body">
+            <div class="history-room-thumb">
+                <img src="{{ booking.room.image_url or 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304' }}" alt="{{ booking.room.room_type }}">
+            </div>
+            
+            <div class="history-details">
+                <h3>{{ booking.room.room_type }} - Room #{{ booking.room.room_number }}</h3>
+                
+                <div class="history-dates">
+                    <div class="date-box">
+                        <span class="date-label">Check-in</span>
+                        <strong><i class="fa-solid fa-calendar-day"></i> {{ booking.check_in_date }}</strong>
+                    </div>
+                    <div class="date-arrow"><i class="fa-solid fa-right-long"></i></div>
+                    <div class="date-box">
+                        <span class="date-label">Check-out</span>
+                        <strong><i class="fa-solid fa-calendar-day"></i> {{ booking.check_out_date }}</strong>
+                    </div>
+                </div>
+
+                <div class="history-total">
+                    <span>Total Amount Paid:</span>
+                    <strong class="total-price">₹{{ "%.2f"|format(booking.total_price) }}</strong>
+                </div>
+            </div>
+
+            <div class="history-actions">
+                {% if booking.status == 'BOOKED' %}
+                    <form action="/bookings/{{ booking.id }}/checkin" method="POST">
+                        <button type="submit" class="btn btn-success btn-block">
+                            <i class="fa-solid fa-key"></i> Check-in Now
+                        </button>
+                    </form>
+                    <form action="/bookings/{{ booking.id }}/cancel" method="POST" style="margin-top: 8px;">
+                        <button type="submit" class="btn btn-outline-danger btn-block" onclick="return confirm('Are you sure you want to cancel this booking?')">
+                            <i class="fa-solid fa-xmark"></i> Cancel Booking
+                        </button>
+                    </form>
+                {% elif booking.status == 'CHECKED_IN' %}
+                    <form action="/bookings/{{ booking.id }}/checkout" method="POST">
+                        <button type="submit" class="btn btn-warning btn-block">
+                            <i class="fa-solid fa-door-open"></i> Check-out Room
+                        </button>
+                    </form>
+                {% elif booking.status == 'CHECKED_OUT' %}
+                    <span class="completed-text"><i class="fa-solid fa-circle-check text-success"></i> Stay Completed</span>
+                {% elif booking.status == 'CANCELLED' %}
+                    <span class="cancelled-text"><i class="fa-solid fa-circle-xmark text-danger"></i> Reservation Cancelled</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

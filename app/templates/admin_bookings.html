@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}All Booked Rooms - Welcome Yard Admin{% endblock %}
+
+{% block content %}
+<div class="page-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+    <div>
+        <h2><i class="fa-solid fa-list-check"></i> All Hotel Bookings (Master View)</h2>
+        <p>Monitor and manage all room registrations, check-ins, and check-outs across all guests.</p>
+    </div>
+    <div>
+        <a href="/admin/bookings" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-rotate"></i> Refresh List</a>
+    </div>
+</div>
+
+<div class="filter-card">
+    <form action="/admin/bookings" method="GET" class="filter-form">
+        <div class="filter-group">
+            <label><i class="fa-solid fa-filter"></i> Filter by Status</label>
+            <select name="status_filter">
+                <option value="">All Statuses</option>
+                <option value="BOOKED" {% if selected_status == 'BOOKED' %}selected{% endif %}>Booked</option>
+                <option value="CHECKED_IN" {% if selected_status == 'CHECKED_IN' %}selected{% endif %}>Checked In</option>
+                <option value="CHECKED_OUT" {% if selected_status == 'CHECKED_OUT' %}selected{% endif %}>Checked Out</option>
+                <option value="CANCELLED" {% if selected_status == 'CANCELLED' %}selected{% endif %}>Cancelled</option>
+            </select>
+        </div>
+
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-primary"><i class="fa-solid fa-filter"></i> Filter</button>
+            <a href="/admin/bookings" class="btn btn-outline"><i class="fa-solid fa-rotate"></i> Clear Filter</a>
+        </div>
+    </form>
+</div>
+
+{% if not bookings %}
+<div class="empty-state">
+    <i class="fa-solid fa-inbox empty-icon"></i>
+    <h3>No Bookings Found</h3>
+    <p>There are no room bookings matching the filter criteria.</p>
+</div>
+{% else %}
+<div style="background: var(--card-bg); border-radius: var(--radius); box-shadow: var(--shadow); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left;">
+        <thead>
+            <tr style="background: #f1f5f9; border-bottom: 2px solid var(--border);">
+                <th style="padding: 1rem;">ID</th>
+                <th style="padding: 1rem;">Guest Details</th>
+                <th style="padding: 1rem;">Room Info</th>
+                <th style="padding: 1rem;">Check-in / Check-out</th>
+                <th style="padding: 1rem;">Total Amount</th>
+                <th style="padding: 1rem;">Status</th>
+                <th style="padding: 1rem;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr style="border-bottom: 1px solid var(--border);">
+                <td style="padding: 1rem; font-weight: 700;">#{{ booking.id }}</td>
+                <td style="padding: 1rem;">
+                    <strong><i class="fa-solid fa-user"></i> {{ booking.user.username }}</strong><br>
+                    <small style="color: var(--text-muted);">{{ booking.user.email }}</small>
+                </td>
+                <td style="padding: 1rem;">
+                    <strong>Room #{{ booking.room.room_number }}</strong><br>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">{{ booking.room.room_type }}</span>
+                </td>
+                <td style="padding: 1rem; font-size: 0.9rem;">
+                    <div><i class="fa-solid fa-calendar-day text-success"></i> In: {{ booking.check_in_date }}</div>
+                    <div><i class="fa-solid fa-calendar-day text-danger"></i> Out: {{ booking.check_out_date }}</div>
+                </td>
+                <td style="padding: 1rem; font-weight: 700; color: var(--primary);">
+                    ₹{{ "%.2f"|format(booking.total_price) }}
+                </td>
+                <td style="padding: 1rem;">
+                    {% if booking.status == 'BOOKED' %}
+                        <span class="badge badge-booked"><i class="fa-solid fa-calendar-days"></i> Booked</span>
+                    {% elif booking.status == 'CHECKED_IN' %}
+                        <span class="badge badge-checked-in"><i class="fa-solid fa-key"></i> Checked In</span>
+                    {% elif booking.status == 'CHECKED_OUT' %}
+                        <span class="badge badge-checked-out"><i class="fa-solid fa-flag-checkered"></i> Checked Out</span>
+                    {% elif booking.status == 'CANCELLED' %}
+                        <span class="badge badge-cancelled"><i class="fa-solid fa-ban"></i> Cancelled</span>
+                    {% endif %}
+                </td>
+                <td style="padding: 1rem;">
+                    {% if booking.status == 'BOOKED' %}
+                        <form action="/bookings/{{ booking.id }}/checkin" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-success btn-sm"><i class="fa-solid fa-key"></i> Check-in</button>
+                        </form>
+                    {% elif booking.status == 'CHECKED_IN' %}
+                        <form action="/bookings/{{ booking.id }}/checkout" method="POST" style="display:inline;">
+                            <button type="submit" class="btn btn-warning btn-sm"><i class="fa-solid fa-door-open"></i> Check-out</button>
+                        </form>
+                    {% else %}
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">-</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block title %}Room #{{ room.room_number }} - {{ room.room_type }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="/rooms"><i class="fa-solid fa-arrow-left"></i> Back to Rooms</a>
+</div>
+
+<div class="detail-grid">
+    <div class="detail-info-card">
+        <div class="detail-image-box">
+            <img src="{{ room.image_url or 'https://images.unsplash.com/photo-1631049307264-da0ec9d70304' }}" alt="{{ room.room_type }}">
+            <div class="detail-badge-group">
+                <span class="room-type-badge">{{ room.room_type }}</span>
+                <span class="room-number-tag">Room #{{ room.room_number }}</span>
+            </div>
+        </div>
+
+        <div class="detail-content">
+            <h2>{{ room.room_type }} - Room {{ room.room_number }}</h2>
+            <p class="detail-desc">{{ room.description }}</p>
+
+            <div class="detail-specs">
+                <div class="spec-item">
+                    <i class="fa-solid fa-user-group spec-icon"></i>
+                    <div>
+                        <strong>Capacity</strong>
+                        <p>Up to {{ room.capacity }} Person(s)</p>
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <i class="fa-solid fa-tag spec-icon"></i>
+                    <div>
+                        <strong>Price per Night</strong>
+                        <p>₹{{ "%.2f"|format(room.price_per_night) }}</p>
+                    </div>
+                </div>
+                <div class="spec-item">
+                    <i class="fa-solid fa-shield-halved spec-icon"></i>
+                    <div>
+                        <strong>Status</strong>
+                        <p class="text-success">Available for Booking</p>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="divider">
+
+            <h3>Included Amenities & Features</h3>
+            <div class="amenities-grid">
+                {% if room.amenities %}
+                    {% for amenity in room.amenities.split(',') %}
+                    <div class="amenity-item">
+                        <i class="fa-solid fa-circle-check"></i>
+                        <span>{{ amenity.strip() }}</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>Standard room amenities included.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="booking-sidebar">
+        <div class="booking-card">
+            <h3><i class="fa-solid fa-calendar-check"></i> Book Room #{{ room.room_number }}</h3>
+            <div class="price-banner">
+                <span class="price-val" id="pricePerNight">₹{{ "%.2f"|format(room.price_per_night) }}</span>
+                <span class="price-period">/ night</span>
+            </div>
+
+            <form action="/rooms/{{ room.id }}/book" method="POST" class="booking-form" id="bookingForm">
+                <div class="form-group">
+                    <label for="check_in_date"><i class="fa-solid fa-calendar-day"></i> Check-in Date</label>
+                    <input type="date" id="check_in_date" name="check_in_date" required min="{{ today }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="check_out_date"><i class="fa-solid fa-calendar-day"></i> Check-out Date</label>
+                    <input type="date" id="check_out_date" name="check_out_date" required min="{{ tomorrow }}">
+                </div>
+
+                <div class="booking-summary-box">
+                    <div class="summary-row">
+                        <span>Nights:</span>
+                        <strong id="totalNights">0</strong>
+                    </div>
+                    <div class="summary-row total-row">
+                        <span>Total Price:</span>
+                        <strong id="totalCost">₹0.00</strong>
+                    </div>
+                </div>
+
+                {% if current_user %}
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <i class="fa-solid fa-credit-card"></i> Confirm & Book Room
+                    </button>
+                {% else %}
+                    <div class="login-prompt">
+                        <p>Please log in to book this room.</p>
+                        <a href="/login" class="btn btn-accent btn-block">
+                            <i class="fa-solid fa-right-to-bracket"></i> Login to Book
+                        </a>
+                    </div>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const checkInInput = document.getElementById("check_in_date");
+    const checkOutInput = document.getElementById("check_out_date");
+    const totalNightsElem = document.getElementById("totalNights");
+    const totalCostElem = document.getElementById("totalCost");
+    const pricePerNight = {{ room.price_per_night }};
+
+    // Set initial dates (Today and Tomorrow)
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const formatDate = (d) => d.toISOString().split('T')[0];
+    
+    if (!checkInInput.value) checkInInput.value = formatDate(today);
+    if (!checkOutInput.value) checkOutInput.value = formatDate(tomorrow);
+
+    function updateCalculation() {
+        const inDate = new Date(checkInInput.value);
+        const outDate = new Date(checkOutInput.value);
+
+        if (inDate && outDate && outDate > inDate) {
+            const diffTime = Math.abs(outDate - inDate);
+            const nights = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            const total = nights * pricePerNight;
+
+            totalNightsElem.textContent = nights;
+            totalCostElem.textContent = "₹" + total.toFixed(2);
+        } else {
+            totalNightsElem.textContent = "0";
+            totalCostElem.textContent = "₹0.00";
+        }
+    }
+
+    checkInInput.addEventListener("change", function() {
+        if (checkInInput.value >= checkOutInput.value) {
+            const nextDay = new Date(checkInInput.value);
+            nextDay.setDate(nextDay.getDate() + 1);
+            checkOutInput.value = formatDate(nextDay);
+        }
+        updateCalculation();
+    });
+
+    checkOutInput.addEventListener("change", updateCalculation);
+    updateCalculation();
+});
+</script>
+{% endblock %}
