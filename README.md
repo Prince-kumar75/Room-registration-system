@@ -4,18 +4,6 @@ A full-stack **Room Registration & Booking System** built with **FastAPI**, **SQ
 
 ---
 
-## 🌟 Key Features
-
-- **User Authentication**: Register & Login with secure password hashing (PBKDF2) and session cookies.
-- **Available Rooms View**: Browse rooms with dynamic filters (Room type, Guest capacity, and Maximum price in ₹).
-- **Interactive Room Booking**: Select check-in and check-out dates with real-time night and total cost calculation.
-- **Check-in & Check-out**: One-click check-in and check-out status tracking.
-- **My Bookings History**: Guest view to track active and past reservations.
-- **Master Admin View**: Hotel staff dashboard at `/admin/bookings` to monitor all guest registrations across the hotel.
-- **Dual Database Support**: Seamless PostgreSQL support with automatic SQLite fallback (`sqlite:///./room_registration.db`) for zero-setup local execution.
-
----
-
 ## 🛠️ Tech Stack
 
 - **Backend Framework**: [FastAPI](https://fastapi.tiangolo.com/)
@@ -25,16 +13,7 @@ A full-stack **Room Registration & Booking System** built with **FastAPI**, **SQ
 
 ---
 
-## 🚀 Quick Start Instructions
-
-### 1. Clone & Install Dependencies
-```bash
-git clone https://github.com/Prince-kumar75/Room-registration-system.git
-cd Room-registration-system
-pip install -r requirements.txt
-```
-
-### 2. Run Application
+###  Run Application
 ```bash
 python run.py
 ```
