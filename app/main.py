@@ -208,7 +208,9 @@ def checkout_room(
         url=f"/history?msg=Checked+out+from+Room+#{booking.room.room_number}+successfully.+Thank+you+for+staying!",
         status_code=status.HTTP_303_SEE_OTHER
     )
-
+@app.get("/health")
+def health_check():
+    return{"status":"OK"}
 
 # -------------------------------------------------------------
 # Cancel Booking
