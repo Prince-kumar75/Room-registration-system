@@ -1,6 +1,6 @@
 # Welcome Yard - Room Registration System
 
-A full-stack **Room Registration & Booking System** built with **FastAPI**, **SQLAlchemy**, **PostgreSQL** (with dynamic SQLite fallback for easy local execution ), and **HTML/CSS (Jinja2)**.
+A full-stack project **Room Registration & Booking System** built with **FastAPI**, **SQLAlchemy**, **PostgreSQL** (with dynamic SQLite fallback for easy local execution ), and **HTML/CSS (Jinja2)**.
 
 ---
 
